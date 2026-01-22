@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bus Schedule Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+
+<body>
+
+<div class="container">
+    
+    <div class="input-section">
+    <h1>🚌 Bus Schedule</h1>
+    <p>Select location</p>
+
+    <!-- MODE BUTTONS -->
+    <div class="mode-buttons">
+        <button type="button" onclick="selectWork()">Work</button>
+        <button type="button" onclick="selectHome()">Home</button>
+    </div>
+
+    <!-- HOME OPTIONS -->
+    <div class="direction-buttons" id="homeOptions">
+        <button type="button" onclick="selectCity()">Towards City</button>
+        <button type="button" onclick="selectSwords()">Towards Swords</button>
+    </div>
+
+    <!-- FORM -->
+    <form method="POST">
+        <input 
+            type="number" 
+            id="busStopInput"
+            name="bus_stop" 
+            placeholder="Bus Stop Number" 
+            value="{{ bus_stop_no if bus_stop_no is not none else '' }}"
+            required
+        >
+        <button type="submit">Check</button>
+        <button type="button" class="refresh-btn" onclick="refreshResults()">🔄 Refresh</button>
+    </form>
+</div>
+
+
+    {% if result %}
+    <div class="result-section">
+        <h2>Upcoming Buses</h2>
+
+        <div class="result-box">
+            {% for line in result.split('\n') %}
+                <div class="result-row">{{ line }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+<script>
+    // 🔧 CONFIG – change these IDs only
+    const WORK_STOP_ID = 3689;
+    const HOME_CITY_STOP_ID = 5029;
+    const HOME_SWORDS_STOP_ID = 5031;
+
+    const resultBox = document.querySelector(".result-box");
+
+    const input = document.getElementById("busStopInput");
+    const homeOptions = document.getElementById("homeOptions");
+
+    function selectWork() {
+        homeOptions.style.display = "none";
+        input.value = WORK_STOP_ID;
+    }
+
+    function selectHome() {
+        homeOptions.style.display = "flex";
+        input.value = "";
+    }
+
+    function selectCity() {
+        input.value = HOME_CITY_STOP_ID;
+    }
+
+    function selectSwords() {
+        input.value = HOME_SWORDS_STOP_ID;
+    }
+
+    
+
+      async function refreshResults() {
+    const response = await fetch("/refresh", { method: "POST" });
+    const data = await response.json();
+
+    const resultBox = document.querySelector(".result-box");
+    resultBox.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "result-row";
+    header.textContent = `Last updated: ${data.timestamp}`;
+    resultBox.appendChild(header);
+
+    data.result.split("\n").forEach(line => {
+        if (line.trim()) {
+            const row = document.createElement("div");
+            row.className = "result-row";
+            row.textContent = line;
+            resultBox.appendChild(row);
+        }
+    });
+}</script>
+
+</body>
+</html>
