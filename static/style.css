@@ -137,3 +137,23 @@ button:hover {
 .direction-buttons button:hover {
     background: rgba(0, 198, 255, 0.4);
 }
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        padding: 20px;
+
+        grid-template-columns: 1fr; /* 👈 single column */
+        grid-template-rows: auto 1fr;
+    }
+
+    .input-section {
+        order: 1;
+    }
+
+    .result-section {
+        order: 2;
+        margin-top: 15px;
+    }
+}
